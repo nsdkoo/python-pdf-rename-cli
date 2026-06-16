@@ -22,3 +22,7 @@ python -m pdf_renamer ./papers
 
 - 支持单文件或目录
 - 目录模式下仅处理通用文件名的 PDF
+
+
+## 提示
+建议先使用 --dry-run 预览。
