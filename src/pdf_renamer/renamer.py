@@ -80,3 +80,5 @@ def should_rename_file(filepath: Path) -> bool:
 
     return is_generic_filename(filepath.name)
 
+
+# safe filename handling
