@@ -1,0 +1,53 @@
+﻿[project]
+name = "rename-academic-pdf"
+version = "0.1.0"
+description = "Rename academic PDF files to bibliography format (Author - Title Year)"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "", email = "steele@.com" }]
+dependencies = [
+    "beautifulsoup4>=4.13.4",
+    "click>=8.2.1",
+    "lxml>=6.0.0",
+    "pymupdf>=1.26.3",
+    "pypdf>=5.8.0",
+    "requests>=2.32.4",
+]
+
+[project.scripts]
+rename-academic-pdf = "pdf_renamer.__main__:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/pdf_renamer"]
+
+[dependency-groups]
+dev = [
+    "pyright>=1.1.403",
+    "pytest>=8.4.1",
+    "ruff>=0.12.4",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "UP"]
+
+[tool.pyright]
+pythonVersion = "3.11"
+typeCheckingMode = "strict"
+
+[tool.pytest.ini_options]
+filterwarnings = [
+    # Ignore PyMuPDF/SWIG deprecation warnings
+    "ignore:.*builtin type SwigPyPacked.*:DeprecationWarning",
+    "ignore:.*builtin type SwigPyObject.*:DeprecationWarning", 
+    "ignore:.*builtin type swigvarlink.*:DeprecationWarning",
+]
+
