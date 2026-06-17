@@ -1,4 +1,4 @@
-﻿"""Command-line interface for PDF renamer."""
+"""Command-line interface for PDF renamer."""
 
 import sys
 import traceback
@@ -39,6 +39,7 @@ def collect_files_to_process(paths: tuple[str, ...]) -> list[Path]:
 
 
 @click.command()
+@click.version_option(version="1.0.0", prog_name="pdf-renamer")
 @click.argument("paths", nargs=-1, required=True, type=click.Path(exists=True))
 @click.option("--dry-run", "-n", is_flag=True, help="Show what would be renamed without doing it")
 @click.option("--verbose", "-v", is_flag=True, help="Show detailed processing information")
@@ -152,4 +153,3 @@ def main(paths: tuple[str, ...], dry_run: bool, verbose: bool) -> None:
 
 if __name__ == "__main__":
     main()
-

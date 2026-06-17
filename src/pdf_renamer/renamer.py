@@ -1,4 +1,4 @@
-﻿"""Core renaming logic."""
+"""Core renaming logic."""
 
 import re
 from pathlib import Path
@@ -12,6 +12,8 @@ def sanitize_filename(filename: str) -> str:
     filename = re.sub(r"\s+", " ", filename)
     # Trim whitespace
     filename = filename.strip()
+    if not filename:
+        return "untitled"
     # Limit length (leave room for extension)
     if len(filename) > 200:
         filename = filename[:200].rsplit(" ", 1)[0]

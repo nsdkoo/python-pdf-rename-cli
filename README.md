@@ -1,4 +1,4 @@
-﻿# PDF 学术文献重命名 CLI
+# PDF 学术文献重命名 CLI
 
 根据 PDF 元数据批量重命名文件，适合论文本地归档。
 
@@ -11,6 +11,9 @@ pip install -e .
 ## 用法
 
 ```bash
+# 查看版本
+python -m pdf_renamer --version
+
 # 预览重命名（不实际修改）
 python -m pdf_renamer ./papers --dry-run
 
@@ -22,7 +25,8 @@ python -m pdf_renamer ./papers
 
 - 支持单文件或目录
 - 目录模式下仅处理通用文件名的 PDF
-
+- 元数据清洗后若文件名为空，将回退为 `untitled`
 
 ## 提示
-建议先使用 --dry-run 预览。
+
+建议先使用 `--dry-run` 预览。
