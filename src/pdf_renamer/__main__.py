@@ -1,4 +1,4 @@
-"""Command-line interface for PDF renamer."""
+﻿"""Command-line interface for PDF renamer."""
 
 import sys
 import traceback
@@ -12,10 +12,10 @@ from .metadata import (
     extract_xmp_metadata,
     parse_title_and_authors_from_text,
 )
-from .renamer import generate_zotero_style_filename, should_rename_file
+from .renamer import generate_zotero_style_filename, resolve_unique_path, should_rename_file
 
 
-def collect_files_to_process(paths: tuple[str, ...]) -> list[Path]:
+def collect_files_to_process(paths: tuple[str, ...], recursive: bool = False) -> list[Path]:
     """Collect PDF files to process based on input paths.
 
     For direct files: processes all PDF files regardless of name.
@@ -30,9 +30,12 @@ def collect_files_to_process(paths: tuple[str, ...]) -> list[Path]:
             if path.suffix.lower() == ".pdf":
                 files_to_process.append(path)
         elif path.is_dir():
-            # Only process directly nested PDFs with generic names (case-insensitive)
-            for file in path.iterdir():
-                if file.is_file() and file.suffix.lower() == ".pdf" and should_rename_file(file):
+            if recursive:
+                candidates = (f for f in path.rglob("*.pdf") if f.is_file())
+            else:
+                candidates = (f for f in path.iterdir() if f.is_file() and f.suffix.lower() == ".pdf")
+            for file in candidates:
+                if should_rename_file(file):
                     files_to_process.append(file)
 
     return files_to_process
@@ -43,7 +46,8 @@ def collect_files_to_process(paths: tuple[str, ...]) -> list[Path]:
 @click.argument("paths", nargs=-1, required=True, type=click.Path(exists=True))
 @click.option("--dry-run", "-n", is_flag=True, help="Show what would be renamed without doing it")
 @click.option("--verbose", "-v", is_flag=True, help="Show detailed processing information")
-def main(paths: tuple[str, ...], dry_run: bool, verbose: bool) -> None:
+@click.option("--recursive", "-R", is_flag=True, help="Recursively scan subdirectories for generic PDF names")
+def main(paths: tuple[str, ...], dry_run: bool, verbose: bool, recursive: bool) -> None:
     """Rename PDF files to include author name and paper title, like Zotero.
 
     For directories, only renames directly nested PDF files with generic names
@@ -63,7 +67,7 @@ def main(paths: tuple[str, ...], dry_run: bool, verbose: bool) -> None:
             continue
 
         # Use the extracted function for valid paths
-        valid_files = collect_files_to_process((path_str,))
+        valid_files = collect_files_to_process((path_str,), recursive=recursive)
         files_to_process.extend(valid_files)
 
     if not files_to_process:
@@ -117,19 +121,13 @@ def main(paths: tuple[str, ...], dry_run: bool, verbose: bool) -> None:
             if metadata and metadata.get("title"):
                 new_filename = generate_zotero_style_filename(metadata)
                 if new_filename:
-                    new_path = pdf_path.parent / new_filename
-
-                    # Check if target already exists
-                    if new_path.exists() and new_path != pdf_path:
-                        click.echo(f"  Target already exists: {new_filename}", err=True)
-                        failed_count += 1
-                        continue
+                    new_path = resolve_unique_path(pdf_path.parent, new_filename)
 
                     if dry_run:
-                        click.echo(f"  Would rename to: {new_filename}")
+                        click.echo(f"  Would rename to: {new_path.name}")
                     else:
                         pdf_path.rename(new_path)
-                        click.echo(f"  Renamed to: {new_filename}")
+                        click.echo(f"  Renamed to: {new_path.name}")
                     renamed_count += 1
                 else:
                     click.echo(f"  Could not generate filename for {pdf_path.name}", err=True)
@@ -153,3 +151,4 @@ def main(paths: tuple[str, ...], dry_run: bool, verbose: bool) -> None:
 
 if __name__ == "__main__":
     main()
+

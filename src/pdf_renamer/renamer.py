@@ -1,4 +1,4 @@
-"""Core renaming logic."""
+﻿"""Core renaming logic."""
 
 import re
 from pathlib import Path
@@ -81,6 +81,22 @@ def should_rename_file(filepath: Path) -> bool:
         return False
 
     return is_generic_filename(filepath.name)
+
+
+def resolve_unique_path(directory: Path, filename: str) -> Path:
+    """Return a non-conflicting path by appending numeric suffix when needed."""
+    candidate = directory / filename
+    if not candidate.exists():
+        return candidate
+
+    stem = Path(filename).stem
+    suffix = Path(filename).suffix
+    counter = 2
+    while True:
+        candidate = directory / f"{stem}_{counter}{suffix}"
+        if not candidate.exists():
+            return candidate
+        counter += 1
 
 
 # safe filename handling
